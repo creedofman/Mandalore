@@ -16,21 +16,28 @@
 ### The Software
 
 - Ubuntu Server 16.04 LTS (fully patched, kept updated bi-weekly)
-- Docker-CE (current stable version, kept updated bi-weekly)
+- Docker-CE (current stable version, kept updated bi-weekly) and Docker-Compose
 	- Plex (https://plex.tv/)
 	- Sonarr (https://sonarr.tv/)
 	- Radarr (https://radarr.video/)
 	- Transmission (https://transmissionbt.com/)
-	- NZBGet (https://nzbget.net/)
 	- Ombi (https://ombi.io/)
 	- Tautulli (http://tautulli.com/)
 	- Portainer (https://portainer.io/)
+	- Ubooquity (https://vaemendis.net/ubooquity/)
+	- Lidarr (https://lidarr.audio)
+	- Jackett (https://github.com/Jackett/Jackett)
+	- NGINX + LetsEncrypt (https://hub.docker.com/r/linuxserver/letsencrypt/)
+	- Ghost (https://ghost.org)
+	- LazyLibrarian (https://github.com/DobyTang/LazyLibrarian)
+	- Mylar (https://github.com/evilhero/mylar)
+	- File server (https://github.com/halverneus/static-file-server)
 - BTRFS (to create a 22TB storage array)
 
 ### Other Notes
 
-- Sonarr and Radarr require one or more "indexers" and "trackers" to find new content. I'm not going to get into what those are or how to find/join them. Check out /r/trackers or /r/indexers on Reddit.
-- All of the above services can run without Docker - however: I like Docker, I like how it works, I think it's better than running all those services independently. Docker has a learning curve, but once you grasp the key concepts, it's great to work with. I recommend checking out the "Get Started" docs here: https://docs.docker.com/get-started/
+- Sonarr, Radarr, Lidarr, LazyLibrarian, and Mylar require one or more "indexers" and/or "trackers" to find new content. I'm not going to get into what those are or how to find/join them. Check out /r/trackers or /r/indexers on Reddit.
+- Most/all of the above services can run without Docker - however: I like Docker, I like how it works, I think it's better than running all those services independently. Docker has a learning curve, but once you grasp the key concepts, it's great to work with. I recommend checking out the "Get Started" docs here: https://docs.docker.com/get-started/
 - I'm still fine-tuning my own server, and I'm already building my next (replacement) upgrade. I started out with a Raspberry Pi 3 and some external drives, and currently have ended up here.
 - In addition to all the hardware/software listed above, I also have a spare machine set up as an Automated Ripping Machine with minor script customizations. I did not write the original scripts, to learn more about ARM go here: https://b3n.org/automatic-ripping-machine/
 	- A.R.M. lets me pop in a disc (cd/dvd/blu-ray), wait a little while, then it pops the disc back out. Every night a cron job rsyncs the newly ripped files to a directory on my main media server machine.
@@ -60,10 +67,10 @@
 	- All of the docker containers (except for Portainer) need to have the `PUID` and `PGID` environment variables set to the same value as your main user (the one that has permissions set on the directories)
 		- This is super important, otherwise your applications will not be able to work with the media files properly
 6) Configure all of your containers to point to the correct directories
-	- Sonarr, Radarr, Transmission, and NZBGet all need volume mounts to your complete downloads directory and incomplete downloads directory.
-		- e.g. `-v /mnt/internal/downloads:/downloads/complete` and `-v /mnt/scratch_ssd/downloads:/downloads/incomplete` for each container. Once I put Dockerfiles or docker-compose.yml in this repo, you can refer to that for specific configs.
+	- Sonarr, Radarr, Transmission, Lidarr, Mylar, and LazyLibrarian all need volume mounts to your complete downloads directory and incomplete downloads directory.
+		- e.g. `-v /mnt/internal/downloads:/downloads/complete` and `-v /mnt/scratch_ssd/downloads:/downloads/incomplete` for each container. Refer to the docker-compose.yml in this repo for specific per-container configs.
 	- Plex needs a volume mount to your `Plex` directory, but not to the download directories
-	- Sonarr and Radarr need a volume mount to your `Plex` directory
+	- Sonarr, Radarr, and Lidarr need a volume mount to your `Plex` directory
 	- Most containers need a `/config` directory mounted - I keep all of mine in `/home/$user/docker/$containername/config`
 		- e.g. `/home/$user/docker/sonarr/config`, `/home/$user/docker/radarr/config`, etc.
 		- Plex works a bit differently, I specified the config directory as well as a location on my non-OS SSD for the metadata files (so that the libraries load faster in apps/web interface)
