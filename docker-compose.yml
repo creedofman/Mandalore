@@ -10,8 +10,30 @@ networks:
 # Containers #
 ##############
 services:
+  ###############
+  # letsencrypt #
+  ###############
+  letsencrypt:
+    image: linuxserver/letsencrypt
+    container_name: letsencrypt
+    ports:
+      - 443:443
+      - 80:80
+    volumes:
+      - /path/to/letsencrypt/config:/config
+    restart:
+      always
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - VALIDATION=http
+      - EMAIL=<EMAIL ADDRESS>
+      - URL=<DOMAIN>
+      - SUBDOMAINS=<SUBDOMAINS>
+      - TZ=America/New_York
+     # - STAGING=true
   ########
-  # Plex #
+  # plex #
   ########
   plex:
     container_name: plex
@@ -32,23 +54,22 @@ services:
       - PGID=1000
       - TZ=America\New_York
       - PLEX_CLAIM=<PLEX_CLAIM_CODE>
-      - ADVERTISE_IP=<DOCKER_HOST_IP>
     hostname: plex
     labels:
       - stack=media
     volumes:
       - /path/to/plex/config:/config
       - /path/to/transcode:/transcode
-      - /path/to/data/plex-media:/data
+      - /path/to/media:/media
   ############
-  # Tautulli #
+  # tautulli #
   ############
   tautulli:
     container_name: tautulli
     image: shiggins8/tautulli:latest
     restart: unless-stopped
-    ports:
-      - 8181:9191/tcp
+    expose:
+      - 8181:8181/tcp
     environment:
       - PUID=1000
       - PGID=1000
@@ -57,10 +78,10 @@ services:
     labels:
       - stack=media
     volumes:
-      - /path/to/docker/tautulli/config:/config
+      - /path/to/tautulli/config:/config
       - /path/to/plex/config/Library/Logs:/logs
   ###########
-  # Jackett #
+  # jackett #
   ###########
   jackett:
     container_name: jackett
@@ -76,14 +97,14 @@ services:
     labels:
       - stack=media
     volumes:
-      - /path/to/docker/jackett/config:/config
-      - /path/to/data/downloads/queue:/downloads
+      - /path/to/jackett/config:/config
+      - /path/to/downloads/queue:/downloads
   ##########
-  # Lidarr #
+  # lidarr #
   ##########
   lidarr:
     container_name: lidarr
-    image: 	linuxserver/lidarr:latest
+    image: linuxserver/lidarr:latest
     restart: unless-stopped
     ports:
       - 8686:8686/tcp
@@ -95,18 +116,18 @@ services:
     labels:
       - stack=media
     volumes:
-      - /path/to/docker/lidarr/config:/config
-      - /path/to/data/downloads:/downloads
-      - /path/to/data/plex-media/Music:/music
+      - /path/to/lidarr/config:/config
+      - /path/to/downloads:/downloads
+      - /path/to/music:/music
   ########
-  # Ombi #
+  # ombi #
   ########
   ombi:
     container_name: ombi
     image: 	linuxserver/ombi:latest
     restart: unless-stopped
     ports:
-      - 3579:3579/tcp
+      - 3579/tcp
     environment:
       - PUID=1000
       - PGID=1000
@@ -115,9 +136,9 @@ services:
     labels:
       - stack=media
     volumes:
-      - /path/to/docker/ombi/config:/config
+      - /path/to/ombi/config:/config
   ##########
-  # Radarr #
+  # radarr #
   ##########
   radarr:
     container_name: radarr
@@ -133,11 +154,11 @@ services:
     labels:
       - stack=media
     volumes:
-      - /path/to/docker/radarr/config:/config
-      - /path/to/data/downloads:/downloads
-      - /path/to/data/plex-media/Movies:/movies
+      - /path/to/radarr/config:/config
+      - /path/to/downloads:/downloads
+      - /path/to/movies:/movies
   ##########
-  # Sonarr #
+  # sonarr #
   ##########
   sonarr:
     container_name: sonarr
@@ -153,11 +174,11 @@ services:
     labels:
       - stack=media
     volumes:
-      - /path/to/data/plex-media/TV:/tv
-      - /path/to/docker/sonarr/config:/config
-      - /path/to/data/downloads:/downloads
+      - /path/to/tv:/tv
+      - /path/to/sonarr/config:/config
+      - /path/to/downloads:/downloads
   ################
-  # Transmission #
+  # transmission #
   ################
   transmission:
     container_name: transmission
@@ -175,12 +196,12 @@ services:
     labels:
       - stack=media
     volumes:
-      - /path/to/docker/transmission/config:/config
-      - /path/to/data/downloads:/downloads/complete
+      - /path/to/transmission/config:/config
+      - /path/to/downloads:/downloads/complete
       - /path/to/downloads/incomplete:/downloads/incomplete
       - /path/to/downloads/watch:/downloads/watch
   #################
-  # LazyLibrarian #
+  # lazylibrarian #
   #################
   lazylibrarian:
     container_name: lazylibrarian
@@ -189,9 +210,9 @@ services:
     ports:
       - 5299:5299/tcp
     volumes:
-      - /path/to/docker/lazylibrarian/config:/config
-      - /path/to/data/books:/books
-      - /path/to/data/downloads:/downloads
+      - /path/to/lazylibrarian/config:/config
+      - /path/to/books:/books
+      - /path/to/downloads:/downloads
     environment:
       - PUID=1000
       - PGID=1000
@@ -200,15 +221,15 @@ services:
       - stack=media
     hostname: lazylibrarian
   #############
-  # Ubooquity #
+  # ubooquity #
   #############
   ubooquity:
     image: linuxserver/ubooquity:latest
     container_name: ubooquity
     volumes:
-      - /path/to/docker/ubooquity/config:/config
-      - /path/to/data/books:/books
-      - /path/to/data/comics:/comics
+      - /path/to/ubooquity/config:/config
+      - /path/to/books:/books
+      - /path/to/comics:/comics
     environment:
       - PUID=1000
       - PGID=1000
@@ -221,15 +242,15 @@ services:
       - 2202:2202/tcp
       - 2203:2203/tcp
   #########
-  # Mylar #
+  # mylar #
   #########
   mylar:
     image: linuxserver/mylar:latest
     container_name: mylar
     volumes:
-      - /path/to/docker/mylar/config:/config
-      - /path/to/data/comics:/comics
-      - /path/to/data/downloads:/downloads
+      - /path/to/mylar/config:/config
+      - /path/to/comics:/comics
+      - /path/to/downloads:/downloads
     environment:
       - PUID=1000
       - PGID=1000
@@ -240,3 +261,22 @@ services:
       - stack=media
     ports:
       - 8090:8090/tcp
+  ####################
+  # static-file-server #
+  ####################
+  static-file-server:
+    image: halverneus/static-file-server:latest
+    container_name: static-file-server
+    volumes:
+      - /path/to/shared/content:/content
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America\New_York
+      - FOLDER=/content
+    restart: unless-stopped
+    hostname: static-file-server
+    labels:
+      - stack=media
+    ports:
+      - 8080/tcp
